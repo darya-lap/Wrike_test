@@ -57,8 +57,7 @@ class ATM{
       for (int i = index; i >= 0; i--) {
         if (i != index) cur_param['number_of_diff_bills']++;
         cur_map[bills[i]]++;
-        var new_param = getBestMapOfBills(
-            bills, i, cash - bills[i], best_param, cur_param);
+        var new_param = getBestMapOfBills(bills, i, cash - bills[i], best_param, cur_param);
 
         if (new_param['number_of_diff_bills'] > best_param['number_of_diff_bills']) {
           best_param = new_param;
@@ -72,8 +71,7 @@ class ATM{
           if (cash >= bills[i]) {
             cur_param['number_of_diff_bills']++;
             cur_map[bills[i]]++;
-            var new_param = getBestMapOfBills(
-                bills, i, cash - bills[i], best_param, cur_param);
+            var new_param = getBestMapOfBills(bills, i, cash - bills[i], best_param, cur_param);
             if (new_param['number_of_diff_bills'] > best_param['number_of_diff_bills']) {
               best_param = new_param;
             }
