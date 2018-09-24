@@ -21,28 +21,34 @@ void main(){
       expect(new ATM_test.ATM().getCash(cash, bills), equals({1:4, 8:3, 28:1}));
     });
 
-      test('Test 4', (){
+    test('Test 4', (){
       int cash = 55;
       var bills = [1,5,10,50];
       expect(new ATM_test.ATM().getCash(cash, bills), equals({1:5, 5:2, 10:4, 50:0}));
     });
 
-      test('Test 5', (){
+    test('Test 5', (){
       int cash = 56;
       var bills = [1,5,10,50];
       expect(new ATM_test.ATM().getCash(cash, bills), equals({1:1, 5:1, 10:0, 50:1}));
     });
 
-      test('Test 6', (){
+    test('Test 6', (){
       int cash = 5;
       var bills = [1,5,10,15];
       expect(new ATM_test.ATM().getCash(cash, bills), equals({1:0, 5:1, 10:0, 15:0}));
     });
 
-      test('Test 7', (){
+    test('Test 7', (){
       int cash = 120;
       var bills = [1,2,3,30];
       expect(new ATM_test.ATM().getCash(cash, bills), equals({1:1, 2:1, 3:9, 30:3}));
+    });
+
+    test('Test 8', (){
+      int cash = 1;
+      var bills = [1,5,10,50];
+      expect(new ATM_test.ATM().getCash(cash, bills), equals({1:1, 5:0, 10:0, 50:0}));
     });
   });
   
