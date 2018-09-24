@@ -1,23 +1,86 @@
 import 'package:test/test.dart';
-import "dart:async";
 import '../bin/wrike_ATM.dart' as ATM_test;
 
 void main(){
-  test('getCash(cash, denominations) returns map which use denominations as a keys and amount of denominations as a value', (){
-    int cash = 55;
-    var denominations = [1,5,10,15];
-    expect(ATM_test.getCash(cash, denominations), equals({1:5, 5:2, 10:1, 15:2}));
+
+  group('getCash(cash, bills_param) returns map which use bills as a keys and amount of bills as a value',(){
+    test('Test 1', (){
+      int cash = 55;
+      var bills = [1,5,10,15];
+      expect(new ATM_test.ATM().getCash(cash, bills), equals({1:5, 5:2, 10:1, 15:2}));
+    });
+
+    test('Test 2', (){
+      int cash = 15;
+      var bills = [1,50,10,5];
+      expect(new ATM_test.ATM().getCash(cash, bills), equals({1:0, 5:1, 10:1, 50:0}));
+    });
+    test('Test 3', (){
+      int cash = 56;
+      var bills = [1,8,28];
+      expect(new ATM_test.ATM().getCash(cash, bills), equals({1:4, 8:3, 28:1}));
+    });
+
+      test('Test 4', (){
+      int cash = 55;
+      var bills = [1,5,10,50];
+      expect(new ATM_test.ATM().getCash(cash, bills), equals({1:5, 5:2, 10:4, 50:0}));
+    });
+
+      test('Test 5', (){
+      int cash = 56;
+      var bills = [1,5,10,50];
+      expect(new ATM_test.ATM().getCash(cash, bills), equals({1:1, 5:1, 10:0, 50:1}));
+    });
+
+      test('Test 6', (){
+      int cash = 5;
+      var bills = [1,5,10,15];
+      expect(new ATM_test.ATM().getCash(cash, bills), equals({1:0, 5:1, 10:0, 15:0}));
+    });
+
+      test('Test 7', (){
+      int cash = 120;
+      var bills = [1,2,3,30];
+      expect(new ATM_test.ATM().getCash(cash, bills), equals({1:1, 2:1, 3:9, 30:3}));
+    });
+  });
+  
+
+  group('Error tests',(){
+
+    test('getCash(cash, bills_param) throws the error because of the incorrect cash value', (){
+      int cash = 0;
+      var bills = [4,8];
+      expect(() => new ATM_test.ATM().getCash(cash, bills), throwsA(predicate((e) => e is ArgumentError && e.message == 'The requested cash must be more than 0')));
+    });
+
+    group('getCash(cash, bills_param) throws the error because of the incorrect bills_param', (){
+      test('getCash(cash, bills_param) throws the error because of empty list', (){
+        int cash = 35;
+        var bills = [];
+        expect(() => new ATM_test.ATM().getCash(cash, bills), throwsA(predicate((e) => e is ArgumentError && e.message == 'Incorrect bills parameter')));
+      });
+
+      test('getCash(cash, bills_param) throws the error because of null parameter', (){
+        int cash = 35;
+        var bills = null;
+        expect(() => new ATM_test.ATM().getCash(cash, bills), throwsA(predicate((e) => e is ArgumentError && e.message == 'Incorrect bills parameter')));
+      });
+    });
+
+    test('getCash(cash, bills_param) throws the error because it isn\'t possible to get cash with available bills', (){
+      int cash = 15;
+      var bills = [4,8];
+      expect(() => new ATM_test.ATM().getCash(cash, bills), throwsA(predicate((e) => e is ArgumentError && e.message == 'The requested cash can not be issued by available bills')));
+    });  
+
   });
 
-  test('getCash(cash, denominations) returns map which use denominations as a keys and number of denominations as a value', (){
-    int cash = 15;
-    var denominations = [4,8];
-    expect(ATM_test.getCash(cash, denominations),throwsA('kkkkkk'));
-  });
 
-  test('function hello should throw exception', (){
-      expect(ATM_test.hello, throwsA(new isInstanceOf<String>()));
-  });
+
+
+
 }
 
 
