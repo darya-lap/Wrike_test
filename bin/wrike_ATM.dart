@@ -1,87 +1,150 @@
+import 'package:collection/collection.dart';
+
+void main(){
+
+  Function deepEq = const DeepCollectionEquality().equals;
+
+  var s1 = new Map.from({50: 10, 3: 20});
+  var s2 = new Map.from({50: 10, 3: 20});
+print(s1 == s2);
+}
+
+class ParametersOfAlgorithm{
+  int numberOfDiffBills;
+  var mapOfBills = new Map<int, int>();
+
+  ParametersOfAlgorithm(numberOfDiffBills, mapOfBills){
+    this.numberOfDiffBills = numberOfDiffBills;
+    this.mapOfBills = new Map<int,int>.from(mapOfBills);
+  }
+
+  void setMapOfBills(Map<int,int> newMapOfBills){
+    this.mapOfBills = newMapOfBills;
+  }
+
+  Map<int,int> getMapOfBills(){
+    return this.mapOfBills;
+  }
+
+
+  void setNumberOfDiffBills(int newNumberOfDiffBills){
+    this.numberOfDiffBills = newNumberOfDiffBills;
+  }
+
+  int getNumberOfDiffBills(){
+    return this.numberOfDiffBills;
+  }
+
+  void incrementNumberOfDiffBills(){
+    this.numberOfDiffBills++;
+  }
+
+  void decrementNumberOfDiffBills(){
+    this.numberOfDiffBills--;
+  }
+
+  void incrementNumberOfBillByKey(int key){
+    this.getMapOfBills()[key]++;
+  }
+
+  void decrementNumberOfBillByKey(int key){
+    this.getMapOfBills()[key]--;
+  }
+  
+}
+
 class ATM{  
-  Map getCash(cash, bills_param) {
+  Map getCash(int cash, List<int> bills_param) {
     if (cash <= 0) {
-      return throw new ArgumentError('The requested cash must be more than 0');
+      throw new ArgumentError('The requested cash must be more than 0');
     }
-    if ((bills_param == null) || (bills_param.length == 0)) {
-      return throw new ArgumentError('Incorrect bills parameter');
+    if (bills_param.isEmpty) {
+      throw new ArgumentError('Incorrect bills parameter');
     }
 
     int cash_rest = cash;
-    var bills = List.from(bills_param);
 
+    var bills = List<int>.from(bills_param);
     bills.sort((a, b) => a.compareTo(b));
-    var number_of_bills = Map<int, int>();
 
-    for (var i in bills) {
-      number_of_bills[i] = 0;
-    }
+    final mapOfBills = new Map.fromIterable(List.generate(bills.length, (int index) => bills_param[index]), value: (_) => 0);
 
-    var best_param = {'map_of_bills': number_of_bills, 'number_of_diff_bills': 0};
+    var bestParam = new ParametersOfAlgorithm(0, mapOfBills);
 
     for (int i = bills.length - 1; i >= 0; i--) {
-      if ((best_param['number_of_diff_bills'] == bills.length) ||
-          ((i + 1) <= best_param['number_of_diff_bills'])) {
+
+      if ((bestParam.getMapOfBills() == bills.length) || ((i + 1) <= bestParam.getNumberOfDiffBills())){
         break;
       }
+
       if (cash_rest >= bills[i]) {
-        var cur_param = {'map_of_bills': number_of_bills, 'number_of_diff_bills': 1};
-        number_of_bills[bills[i]]++;
-        var param_list = getBestMapOfBills(bills, i,
-            cash_rest - bills[i], best_param, cur_param);
-        number_of_bills[bills[i]]--;
-        if (param_list['number_of_diff_bills'] > best_param['number_of_diff_bills']) {
-          best_param['map_of_bills'] = param_list['map_of_bills'];
-          best_param['number_of_diff_bills'] = param_list['number_of_diff_bills'];
-        }
+
+        mapOfBills[bills[i]]++;
+        var curParam = new ParametersOfAlgorithm(1, mapOfBills);
+
+        var paramList = this.getBestMapOfBills(bills, i, cash_rest - bills[i], bestParam, curParam);
+        mapOfBills[bills[i]]--;
+
+        if (paramList.getNumberOfDiffBills() > bestParam.getNumberOfDiffBills()){
+          bestParam = paramList;
+        } 
       }
     }
-    if (number_of_bills == best_param['map_of_bills']) {
-      return throw new ArgumentError('The requested cash can not be issued by available bills');
+
+    Function deepEq = const DeepCollectionEquality().equals;
+
+    if (deepEq(mapOfBills, bestParam.getMapOfBills())){
+        throw new ArgumentError('The requested cash can not be issued by available bills');
     }
-    return best_param['map_of_bills'];
+    return bestParam.getMapOfBills();
   }
 
-  Map getBestMapOfBills(bills, index, cash, best_param, cur_param_prev) {
-    var cur_param = new Map.from(cur_param_prev);
-    var cur_map = new Map.from(cur_param_prev['map_of_bills']);
-    cur_param['map_of_bills'] = cur_map;
+  ParametersOfAlgorithm getBestMapOfBills(List<int >bills, int index, int cash, ParametersOfAlgorithm bestParam, ParametersOfAlgorithm curParamPrev) {
 
-    if (best_param['number_of_diff_bills'] >= (cur_param['number_of_diff_bills'] + index)) {
-      return best_param;
+    var curParam = new ParametersOfAlgorithm(curParamPrev.getNumberOfDiffBills(), new Map.from(curParamPrev.getMapOfBills()));
+
+    if (bestParam.getNumberOfDiffBills() >= (curParam.getNumberOfDiffBills() + index)){
+      return bestParam;
     }
+    var curBill = bills[index];
 
-    var cur_denom = bills[index];
-
-    if (cash >= cur_denom) {
+    if (cash >= curBill) {
       for (int i = index; i >= 0; i--) {
-        if (i != index) cur_param['number_of_diff_bills']++;
-        cur_map[bills[i]]++;
-        var new_param = getBestMapOfBills(bills, i, cash - bills[i], best_param, cur_param);
+        if (i != index){
+          curParam.incrementNumberOfDiffBills();
+        } 
+        curParam.incrementNumberOfBillByKey(bills[i]);
 
-        if (new_param['number_of_diff_bills'] > best_param['number_of_diff_bills']) {
-          best_param = new_param;
+        var newParam = this.getBestMapOfBills(bills, i, cash - bills[i], bestParam, curParam);
+    
+        if (newParam.getNumberOfDiffBills() > bestParam.getNumberOfDiffBills()){
+          bestParam = newParam;
         }
-        cur_map[bills[i]]--;
-        if (i != index) cur_param['number_of_diff_bills']--;
+
+        curParam.decrementNumberOfBillByKey(bills[i]);
+
+        if (i != index){
+          curParam.decrementNumberOfDiffBills();
+        }
       }
     } else {
-      if (cash > 0) {
-        for (int i = index - 1; i >= 0; i--) {
-          if (cash >= bills[i]) {
-            cur_param['number_of_diff_bills']++;
-            cur_map[bills[i]]++;
-            var new_param = getBestMapOfBills(bills, i, cash - bills[i], best_param, cur_param);
-            if (new_param['number_of_diff_bills'] > best_param['number_of_diff_bills']) {
-              best_param = new_param;
+        if (cash > 0) {
+          for (int i = index - 1; i >= 0; i--) {
+            if (cash >= bills[i]) {
+              curParam.incrementNumberOfDiffBills();
+              curParam.incrementNumberOfBillByKey(bills[i]);
+              var newParam = this.getBestMapOfBills(bills, i, cash - bills[i], bestParam, curParam);
+              if (newParam.getNumberOfDiffBills() > bestParam.getNumberOfDiffBills()){
+                bestParam = newParam;
+              }
+              curParam.decrementNumberOfDiffBills();
+              curParam.decrementNumberOfBillByKey(bills[i]);
             }
-            cur_map[bills[i]]--;
-            cur_param['number_of_diff_bills']--;
           }
-        }
-      } else
-        best_param = cur_param;
+        } else{
+            bestParam = curParam;
+        };
     }
-    return best_param;
+    return bestParam;
   }
 }
